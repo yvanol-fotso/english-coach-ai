@@ -1,0 +1,39 @@
+# Dependencies and builds
+node_modules/
+.svelte-kit/
+build/
+dist/
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+
+# Secrets and local config
+.env
+.env.*
+!.env.example
+
+# Models and audio (large, downloaded locally)
+backend/models/piper/*
+!backend/models/piper/.gitkeep
+*.onnx
+*.onnx.json
+*.gguf
+*.bin
+*.wav
+*.webm
+.cache/
+huggingface/
+
+# Logs and OS/editor files
+*.log
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Local database
+backend/data/
