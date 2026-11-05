@@ -28,7 +28,10 @@ The browser never calls FastAPI directly. Proxies forward the method, query and 
 | Route | Purpose | Components |
 | --- | --- | --- |
 | `/` | Home, setup help, streak | |
-| `/chat` | Free conversation, voice conversation mode, history rail (`/chat?c=ID` reopens one) | `components/chat/` |
+| `/path`, `/path/[unit]` | Beginner course: discover, repeat, dialogue, quiz | `components/path/` |
+| `/chat` | Free conversation, voice mode, history rail (`/chat?c=ID` reopens one) | `components/chat/` |
+| `/call` | Phone-style voice call and review | `components/call/` |
+| `/ask` | Short spoken or written answers to language questions | `components/ask/` |
 | `/drills` | Pronunciation and dictation with word-by-word score | `components/practice/` |
 | `/studio`, `/studio/[id]` | Studio tools, built from the backend catalog | `components/ui/` |
 | `/correct` | Writing corrections | `components/correct/` |
@@ -67,13 +70,21 @@ src/
 
 Topics, situations and Studio tools come from `GET /catalog` (loaded in `+layout.server.ts`). Their labels are bilingual objects `{ fr, en }`, shown with `pick()`. To add one, edit `backend/app/catalog/`; no frontend change is needed.
 
-## Voice conversation
+## Voice
 
-`routes/chat/+page.svelte` runs the loop: listen (auto-stop on silence) → send → correction and reply stream in → speak the corrected sentence and the reply → listen again. Speech output and dictation live in `lib/services/speech.ts`.
+`lib/services/voiceLoop.svelte.ts` runs the hands-free loop used by Talk and Call: listen (auto-stop on silence) → send → correction and reply stream in → speak → listen again. `lib/services/conversation.svelte.ts` holds the shared conversation state and streaming. Speech output and dictation live in `lib/services/speech.ts`.
+
+## Languages
+
+The language being learned is the `ec_target` cookie (`preferences.target`), so server loaders can use it. `lib/data/languages.ts` maps language codes to speech locales.
 
 ## Translations
 
 All text lives in `lib/i18n/fr.ts` and `en.ts`. The English file is type-checked against the French one, so a missing key fails `npm run check`. Use `t('key', { name })` in components. Language, theme and accent are stored in cookies so the server renders the right version from the first byte.
+
+## Brand and metadata
+
+`static/` has the favicon (a smiling speech bubble), app icons, `og.png`, `site.webmanifest` and `robots.txt`. `src/app.html` holds the meta tags; `hooks.server.ts` fills the description by language and the absolute `og:image` URL. In production set `ORIGIN`.
 
 ## Design
 
