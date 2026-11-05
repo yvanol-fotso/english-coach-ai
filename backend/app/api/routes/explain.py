@@ -11,7 +11,7 @@ router = APIRouter(prefix="/explain", tags=["vocabulary"])
 @router.post("", response_model=Explanation)
 async def explain(body: ExplainRequest, llm: LLM, db: Db, user: CurrentUser) -> Explanation:
     messages = [
-        {"role": "system", "content": prompts.explain_system(body.level, body.ui_language)},
+        {"role": "system", "content": prompts.explain_system(body.level, body.ui_language, body.target)},
         {"role": "user", "content": body.term},
     ]
     result = await llm.structured(messages, Explanation)

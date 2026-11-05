@@ -16,7 +16,7 @@ TOOLS: tuple[Tool, ...] = (
                    ("haiku", T("Haïku", "Haiku")), ("limerick", T("Limerick", "Limerick")), ("song lyrics", T("Chanson", "Song"))),
         ),
         instructions=(
-            "Write an original {style} poem in English about the user's theme. {level_rule} "
+            "Write an original {style} poem in {lang} about the user's theme. {level_rule} "
             "Then add a short 'Vocabulary' list of 4 to 6 useful words or expressions from the poem with a "
             "translation or explanation in {help}. Finish with one line inviting the learner to write their own verse."
         ),
@@ -36,9 +36,9 @@ TOOLS: tuple[Tool, ...] = (
                    ("mystery", T("Mystère", "Mystery")), ("funny", T("Humour", "Funny")), ("science fiction", T("Science-fiction", "Sci-fi"))),
         ),
         instructions=(
-            "Write a short {genre} story in English about the user's idea. {level_rule} Use short paragraphs. "
+            "Write a short {genre} story in {lang} about the user's idea. {level_rule} Use short paragraphs. "
             "After the story add a 'Glossary' with 5 useful words and their meaning in {help}, then two questions "
-            "in English to check understanding."
+            "in {lang} to check understanding."
         ),
         temperature=0.9,
         max_words=300,
@@ -49,7 +49,7 @@ TOOLS: tuple[Tool, ...] = (
         skill="writing",
         title=T("Reformuler", "Rewrite"),
         description=T("Change le ton d'un texte : formel, naturel, simple, académique.", "Change the tone of a text: formal, natural, simple, academic."),
-        placeholder=T("Colle ton texte en anglais", "Paste your English text"),
+        placeholder=T("Colle ton texte", "Paste your text"),
         options=(
             option("tone", T("Ton", "Tone"),
                    ("formal", T("Formel", "Formal")), ("natural and friendly", T("Naturel", "Natural")),
@@ -57,7 +57,7 @@ TOOLS: tuple[Tool, ...] = (
                    ("professional", T("Professionnel", "Professional"))),
         ),
         instructions=(
-            "Rewrite the user's English text in a {tone} tone, keeping its meaning. Give the rewritten text first. "
+            "Rewrite the user's {lang} text in a {tone} tone, keeping its meaning. Give the rewritten text first. "
             "Then list the 3 most important changes with a one-sentence explanation each, written in {help}."
         ),
         temperature=0.4,
@@ -71,9 +71,9 @@ TOOLS: tuple[Tool, ...] = (
         description=T("Une règle expliquée simplement, avec exemples et exercices.", "A rule explained simply, with examples and practice."),
         placeholder=T("Un point : present perfect, articles, conditionnel…", "A point: present perfect, articles, conditionals..."),
         instructions=(
-            "Explain the grammar point the user names. Write the explanation in {help}, short and clear, for a French "
-            "speaker. Give 4 example sentences in English, the 2 most common mistakes French speakers make, and then "
-            "5 fill-in-the-blank practice sentences in English. Put the answers at the very end under 'Answers'."
+            "Explain the grammar point the user names. Write the explanation in {help}, short and clear, for a {help} "
+            "speaker learning {lang}. Give 4 example sentences in {lang}, the 2 most common mistakes {help} speakers make, and then "
+            "5 fill-in-the-blank practice sentences in {lang}. Put the answers at the very end under 'Answers'."
         ),
         temperature=0.4,
         max_words=350,
@@ -92,7 +92,7 @@ TOOLS: tuple[Tool, ...] = (
         ),
         instructions=(
             "Give 6 useful {kind} about the user's theme. {level_rule} For each: the expression in bold, its meaning "
-            "in {help}, and one natural example sentence in English."
+            "in {help}, and one natural example sentence in {lang}."
         ),
         max_words=300,
     ),
@@ -110,7 +110,7 @@ TOOLS: tuple[Tool, ...] = (
                    ("polite follow-up", T("Relance", "Follow-up")), ("message to a friend", T("Message à un ami", "Friend"))),
         ),
         instructions=(
-            "Write a {kind} in English from the user's notes. The notes may be in French. {level_rule} Add a subject "
+            "Write a {kind} in {lang} from the user's notes. The notes may be in French. {level_rule} Add a subject "
             "line when it is an email. After the text, give 3 useful phrases from it with their meaning in {help}."
         ),
         temperature=0.5,
@@ -122,10 +122,10 @@ TOOLS: tuple[Tool, ...] = (
         skill="reading",
         title=T("Simplifier un texte", "Simplify a text"),
         description=T("Colle un texte difficile : version à ton niveau, mots clés et questions.", "Paste a hard text: a version at your level, key words and questions."),
-        placeholder=T("Colle un article ou un paragraphe en anglais", "Paste an English article or paragraph"),
+        placeholder=T("Colle un article ou un paragraphe", "Paste an article or a paragraph"),
         instructions=(
             "Rewrite the user's text at the learner's level, keeping the key ideas. {level_rule} Then add 'Key words' "
-            "(5 words with their meaning in {help}) and 3 comprehension questions in English."
+            "(5 words with their meaning in {help}) and 3 comprehension questions in {lang}."
         ),
         temperature=0.3,
         max_words=350,
@@ -143,7 +143,7 @@ TOOLS: tuple[Tool, ...] = (
                    ("visa interview", T("Visa", "Visa"))),
         ),
         instructions=(
-            "Prepare the user for a {kind}. Give 6 likely questions. For each, write a short model answer in English "
+            "Prepare the user for a {kind}. Give 6 likely questions. For each, write a short model answer in {lang} "
             "based on the user's profile, then list 5 useful phrases to reuse with their meaning in {help}. {level_rule}"
         ),
         max_words=450,
@@ -156,7 +156,7 @@ TOOLS: tuple[Tool, ...] = (
         description=T("Un discours de 60 secondes sur ton projet, à dire à voix haute.", "A 60-second talk about your project, to say out loud."),
         placeholder=T("Décris ton projet ou ta recherche en quelques phrases", "Describe your project or research"),
         instructions=(
-            "Write a spoken 60-second pitch in English from the user's description. {level_rule} Use short sentences "
+            "Write a spoken 60-second pitch in {lang} from the user's description. {level_rule} Use short sentences "
             "that are easy to say out loud. Then give 3 questions the audience may ask, and 4 linking phrases to sound "
             "natural, with their meaning in {help}."
         ),

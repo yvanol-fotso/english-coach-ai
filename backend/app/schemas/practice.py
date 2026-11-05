@@ -2,7 +2,7 @@ from typing import Literal
 
 from pydantic import BaseModel, Field
 
-from app.schemas.common import Level, UiLanguage
+from app.schemas.common import Level, Target, UiLanguage
 
 
 class PracticeRequest(BaseModel):
@@ -10,6 +10,7 @@ class PracticeRequest(BaseModel):
     level: Level = "B1"
     topic: str | None = Field(default=None, max_length=120)
     ui_language: UiLanguage = "fr"
+    target: Target = "en"
 
 
 class Question(BaseModel):

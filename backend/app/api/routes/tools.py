@@ -32,7 +32,7 @@ async def run_tool(tool_id: str, body: ToolRequest, request: Request, llm: LLM, 
         chosen[opt.id] = value if value in allowed else opt.choices[0].id
 
     messages = [
-        {"role": "system", "content": prompts.tool_system(spec, body.level, body.ui_language, chosen)},
+        {"role": "system", "content": prompts.tool_system(spec, body.level, body.ui_language, body.target, chosen)},
         {"role": "user", "content": body.input},
     ]
     factory, user_id = request.app.state.session_factory, user.id

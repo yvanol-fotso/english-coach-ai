@@ -7,12 +7,36 @@ def T(fr: str, en: str) -> Text:
     return {"fr": fr, "en": en}
 
 
+def S(en: str, fr: str, es: str) -> dict[str, str]:
+    """A first line in each learnable language. Missing languages fall back to English in the app."""
+    return {"en": en, "fr": fr, "es": es}
+
+
+@dataclass(frozen=True)
+class Language:
+    code: str
+    name: str  # English name, used inside prompts
+    native: str
+    locale: str  # BCP-47 tag for speech recognition and voices
+    label: Text
+    available: bool = True
+
+
+@dataclass(frozen=True)
+class Unit:
+    id: str
+    title: Text
+    goal: Text
+    topic: str  # what the lesson teaches, in plain English for the model
+    level: str = "A0"
+
+
 @dataclass(frozen=True)
 class Scenario:
     id: str
     label: Text
     prompt: str
-    starter: str = ""
+    starter: dict[str, str]
     chip: bool = True
 
 
@@ -20,7 +44,7 @@ class Scenario:
 class Topic:
     id: str
     label: Text
-    starter: str
+    starter: dict[str, str]
 
 
 @dataclass(frozen=True)

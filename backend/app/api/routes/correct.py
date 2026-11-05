@@ -11,7 +11,7 @@ router = APIRouter(prefix="/correct", tags=["correct"])
 @router.post("", response_model=CorrectionResult)
 async def correct(body: CorrectRequest, llm: LLM, db: Db, user: CurrentUser) -> CorrectionResult:
     messages = [
-        {"role": "system", "content": prompts.correct_system(body.level, body.ui_language)},
+        {"role": "system", "content": prompts.correct_system(body.level, body.ui_language, body.target)},
         {"role": "user", "content": body.text},
     ]
     result = await llm.structured(messages, CorrectionResult)

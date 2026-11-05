@@ -11,7 +11,7 @@ router = APIRouter(prefix="/drills", tags=["drills"])
 async def drills(body: DrillRequest, llm: LLM) -> DrillSet:
     topic = body.topic or "everyday life"
     messages = [
-        {"role": "system", "content": prompts.drill_system(body.kind, body.level, body.count)},
+        {"role": "system", "content": prompts.drill_system(body.kind, body.level, body.count, body.target)},
         {"role": "user", "content": f"Topic: {topic}"},
     ]
     result = await llm.structured(messages, DrillSet, temperature=0.8)

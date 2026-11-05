@@ -30,6 +30,7 @@ class Conversation(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     scenario: Mapped[str] = mapped_column(String(16))
     level: Mapped[str] = mapped_column(String(2))
+    language: Mapped[str] = mapped_column(String(8), default="en", server_default="en")
     title: Mapped[str] = mapped_column(String(120))
     created_at: Mapped[datetime] = _timestamp()
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=utcnow, index=True)
@@ -59,11 +60,12 @@ class Activity(Base):
 
 class Word(Base):
     __tablename__ = "words"
-    __table_args__ = (UniqueConstraint("user_id", "term"),)
+    __table_args__ = (UniqueConstraint("user_id", "term", "language"),)
 
     id: Mapped[int] = mapped_column(primary_key=True)
     user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
     term: Mapped[str] = mapped_column(String(200))
+    language: Mapped[str] = mapped_column(String(8), default="en", server_default="en")
     data: Mapped[dict] = mapped_column(JSON)
     created_at: Mapped[datetime] = _timestamp()
 
@@ -83,3 +85,27 @@ class WordReview(Base):
     interval_days: Mapped[int] = mapped_column(Integer, default=0)
     ease: Mapped[float] = mapped_column(Float, default=2.5)
     reps: Mapped[int] = mapped_column(Integer, default=0)
+
+
+class LessonCache(Base):
+    __tablename__ = "lesson_cache"
+    __table_args__ = (UniqueConstraint("language", "unit_id", "ui_language"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    language: Mapped[str] = mapped_column(String(8))
+    unit_id: Mapped[str] = mapped_column(String(32))
+    ui_language: Mapped[str] = mapped_column(String(8))
+    data: Mapped[dict] = mapped_column(JSON)
+    created_at: Mapped[datetime] = _timestamp()
+
+
+class LessonProgress(Base):
+    __tablename__ = "lesson_progress"
+    __table_args__ = (UniqueConstraint("user_id", "language", "unit_id"),)
+
+    id: Mapped[int] = mapped_column(primary_key=True)
+    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), index=True)
+    language: Mapped[str] = mapped_column(String(8))
+    unit_id: Mapped[str] = mapped_column(String(32))
+    score: Mapped[int] = mapped_column(Integer)
+    completed_at: Mapped[datetime] = _timestamp()

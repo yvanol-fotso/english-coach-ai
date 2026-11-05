@@ -4,8 +4,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.db.models import Conversation, Message, MessageCorrection, utcnow
 
 
-async def start(db: AsyncSession, user_id: int, scenario: str, level: str, title: str) -> Conversation:
-    conversation = Conversation(user_id=user_id, scenario=scenario, level=level, title=title.strip()[:120] or "…")
+async def start(db: AsyncSession, user_id: int, scenario: str, level: str, title: str, language: str = "en") -> Conversation:
+    conversation = Conversation(
+        user_id=user_id, scenario=scenario, level=level, language=language, title=title.strip()[:120] or "…"
+    )
     db.add(conversation)
     await db.flush()
     return conversation
@@ -28,7 +30,9 @@ async def save_correction(db: AsyncSession, message_id: int, data: dict) -> None
     db.add(MessageCorrection(message_id=message_id, data=data))
 
 
-async def list_for(db: AsyncSession, user_id: int, limit: int = 100) -> list[tuple[Conversation, int]]:
+async def list_for(
+    db: AsyncSession, user_id: int, language: str | None = None, limit: int = 100
+) -> list[tuple[Conversation, int]]:
     query = (
         select(Conversation, func.count(Message.id))
         .outerjoin(Message, Message.conversation_id == Conversation.id)
@@ -37,6 +41,8 @@ async def list_for(db: AsyncSession, user_id: int, limit: int = 100) -> list[tup
         .order_by(Conversation.updated_at.desc())
         .limit(limit)
     )
+    if language:
+        query = query.where(Conversation.language == language)
     return [(c, n) for c, n in (await db.execute(query)).all()]
 
 

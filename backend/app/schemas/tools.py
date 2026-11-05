@@ -1,6 +1,6 @@
 from pydantic import BaseModel, Field
 
-from app.schemas.common import Level, UiLanguage
+from app.schemas.common import Level, Target, UiLanguage
 
 
 class ToolRequest(BaseModel):
@@ -8,3 +8,4 @@ class ToolRequest(BaseModel):
     options: dict[str, str] = {}
     level: Level = "B1"
     ui_language: UiLanguage = "fr"
+    target: Target = "en"

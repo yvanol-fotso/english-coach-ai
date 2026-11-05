@@ -18,6 +18,7 @@ class ConversationSummary(BaseModel):
     title: str
     scenario: str
     level: str
+    language: str = "en"
     updated_at: datetime
     message_count: int
 
@@ -59,7 +60,11 @@ class Stats(BaseModel):
     days: list[DayCount]
 
 
-class WordOut(Explanation):
+class WordIn(Explanation):
+    language: str = "en"
+
+
+class WordOut(WordIn):
     id: int
     created_at: datetime
 

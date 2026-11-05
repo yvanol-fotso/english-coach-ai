@@ -1,4 +1,4 @@
-from typing import Annotated, Literal
+from typing import Annotated
 
 from fastapi import APIRouter, Form, Response, UploadFile
 
@@ -14,7 +14,7 @@ async def transcribe(
     speech: Speech,
     cfg: Config,
     file: UploadFile,
-    language: Annotated[Literal["en", "fr"], Form()] = "en",
+    language: Annotated[str, Form(pattern=r"^[a-z]{2}$")] = "en",
 ) -> dict:
     audio = await file.read(cfg.max_audio_bytes + 1)
     if len(audio) > cfg.max_audio_bytes:

@@ -11,7 +11,7 @@ router = APIRouter(prefix="/practice", tags=["practice"])
 async def generate(body: PracticeRequest, llm: LLM) -> Exercise:
     topic = body.topic or "a topic from everyday life"
     messages = [
-        {"role": "system", "content": prompts.practice_system(body.kind, body.level, body.ui_language)},
+        {"role": "system", "content": prompts.practice_system(body.kind, body.level, body.ui_language, body.target)},
         {"role": "user", "content": f"Topic: {topic}"},
     ]
     exercise = await llm.structured(messages, Exercise, temperature=0.8)

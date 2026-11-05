@@ -4,25 +4,24 @@ from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import Word, WordReview, utcnow
-from app.schemas.explain import Explanation
-from app.schemas.history import WordOut
+from app.schemas.history import WordIn, WordOut
 
 
 def to_out(word: Word) -> WordOut:
-    return WordOut(id=word.id, created_at=word.created_at, **word.data)
+    return WordOut(**{**word.data, "language": word.language}, id=word.id, created_at=word.created_at)
 
 
-async def list_for(db: AsyncSession, user_id: int) -> list[Word]:
-    query = select(Word).where(Word.user_id == user_id).order_by(Word.created_at.desc())
+async def list_for(db: AsyncSession, user_id: int, language: str = "en") -> list[Word]:
+    query = select(Word).where(Word.user_id == user_id, Word.language == language).order_by(Word.created_at.desc())
     return list((await db.execute(query)).scalars())
 
 
-async def add(db: AsyncSession, user_id: int, explanation: Explanation) -> Word:
-    query = select(Word).where(Word.user_id == user_id, Word.term == explanation.term)
+async def add(db: AsyncSession, user_id: int, entry: WordIn) -> Word:
+    query = select(Word).where(Word.user_id == user_id, Word.term == entry.term, Word.language == entry.language)
     existing = (await db.execute(query)).scalar_one_or_none()
     if existing:
         return existing
-    word = Word(user_id=user_id, term=explanation.term, data=explanation.model_dump())
+    word = Word(user_id=user_id, term=entry.term, language=entry.language, data=entry.model_dump(exclude={"language"}))
     db.add(word)
     await db.flush()
     return word
@@ -37,11 +36,15 @@ async def remove(db: AsyncSession, user_id: int, word_id: int) -> bool:
     return True
 
 
-async def due(db: AsyncSession, user_id: int, limit: int = 20) -> list[Word]:
+async def due(db: AsyncSession, user_id: int, language: str = "en", limit: int = 20) -> list[Word]:
     query = (
         select(Word)
         .outerjoin(WordReview, WordReview.word_id == Word.id)
-        .where(Word.user_id == user_id, (WordReview.word_id.is_(None)) | (WordReview.due_at <= utcnow()))
+        .where(
+            Word.user_id == user_id,
+            Word.language == language,
+            (WordReview.word_id.is_(None)) | (WordReview.due_at <= utcnow()),
+        )
         .order_by(Word.created_at)
         .limit(limit)
     )

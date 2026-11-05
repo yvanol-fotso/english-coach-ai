@@ -1,12 +1,13 @@
 from pydantic import BaseModel, Field
 
-from app.schemas.common import Level, UiLanguage
+from app.schemas.common import Level, Target, UiLanguage
 
 
 class ExplainRequest(BaseModel):
     term: str = Field(min_length=1, max_length=200)
     level: Level = "B1"
     ui_language: UiLanguage = "fr"
+    target: Target = "en"
 
 
 class Explanation(BaseModel):

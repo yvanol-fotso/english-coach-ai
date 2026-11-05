@@ -1,22 +1,21 @@
-from fastapi import APIRouter, Response
+from fastapi import APIRouter, Query, Response
 
 from app.api.deps import CurrentUser, Db
 from app.core.errors import NotFoundError
 from app.repositories import words
-from app.schemas.explain import Explanation
-from app.schemas.history import ReviewGrade, WordOut
+from app.schemas.history import ReviewGrade, WordIn, WordOut
 
 router = APIRouter(prefix="/words", tags=["vocabulary"])
 
 
 @router.get("", response_model=list[WordOut])
-async def list_words(db: Db, user: CurrentUser) -> list[WordOut]:
-    return [words.to_out(w) for w in await words.list_for(db, user.id)]
+async def list_words(db: Db, user: CurrentUser, language: str = Query("en", max_length=8)) -> list[WordOut]:
+    return [words.to_out(w) for w in await words.list_for(db, user.id, language)]
 
 
 @router.get("/review", response_model=list[WordOut])
-async def words_to_review(db: Db, user: CurrentUser) -> list[WordOut]:
-    return [words.to_out(w) for w in await words.due(db, user.id)]
+async def words_to_review(db: Db, user: CurrentUser, language: str = Query("en", max_length=8)) -> list[WordOut]:
+    return [words.to_out(w) for w in await words.due(db, user.id, language)]
 
 
 @router.post("/{word_id}/review", status_code=204)
@@ -28,7 +27,7 @@ async def review_word(word_id: int, body: ReviewGrade, db: Db, user: CurrentUser
 
 
 @router.post("", response_model=WordOut, status_code=201)
-async def save_word(body: Explanation, db: Db, user: CurrentUser) -> WordOut:
+async def save_word(body: WordIn, db: Db, user: CurrentUser) -> WordOut:
     word = await words.add(db, user.id, body)
     await db.commit()
     return words.to_out(word)
