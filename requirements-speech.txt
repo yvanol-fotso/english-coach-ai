@@ -1,0 +1,5 @@
+# Optional: local speech recognition (Whisper) and natural voice (Piper).
+# Kept separate on purpose: these packages are heavy and can fail to install on some
+# Windows/Python combinations, and the app works without them (it uses the browser voice).
+faster-whisper>=1.1
+piper-tts>=1.2
