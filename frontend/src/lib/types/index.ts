@@ -1,5 +1,5 @@
 export type Level = 'A0' | 'A1' | 'A2' | 'B1' | 'B2' | 'C1' | 'C2';
-export type Language = 'fr' | 'en';
+export type Language = string;
 export type Lang = 'fr' | 'en';
 export type Theme = 'system' | 'light' | 'dark';
 export type Accent = 'teal' | 'blue' | 'plum' | 'ember';
@@ -15,13 +15,15 @@ export type Skill =
   | 'translation'
   | 'vocabulary'
   | 'grammar'
-  | 'creative';
+  | 'creative'
+  | 'course';
 export type Text = { fr: string; en: string };
 
 export interface Prefs {
   lang: Lang;
   theme: Theme;
   accent: Accent;
+  target: string;
 }
 
 export interface ChatMessage {
@@ -31,6 +33,7 @@ export interface ChatMessage {
 }
 
 export interface ChatRequest {
+  opening?: boolean;
   messages: ChatMessage[];
   conversation_id: number | null;
   scenario: Scenario;
@@ -86,6 +89,7 @@ export interface Explanation {
 }
 
 export interface SavedWord extends Explanation {
+  language: string;
   id: number;
   created_at: string;
 }
@@ -95,6 +99,7 @@ export interface ConversationSummary {
   title: string;
   scenario: Scenario;
   level: Level;
+  language: string;
   updated_at: string;
   message_count: number;
 }
@@ -130,14 +135,29 @@ export interface HealthStatus {
 export interface CatalogTopic {
   id: string;
   label: Text;
-  starter: string;
+  starter: Record<string, string>;
 }
 
 export interface CatalogScenario {
   id: string;
   label: Text;
-  starter: string;
+  starter: Record<string, string>;
   chip: boolean;
+}
+
+export interface CatalogLanguage {
+  code: string;
+  native: string;
+  locale: string;
+  label: Text;
+  available: boolean;
+}
+
+export interface CatalogUnit {
+  id: string;
+  title: Text;
+  goal: Text;
+  level: Level;
 }
 
 export interface ToolOption {
@@ -157,6 +177,8 @@ export interface ToolSpec {
 }
 
 export interface Catalog {
+  languages: CatalogLanguage[];
+  units: CatalogUnit[];
   topics: CatalogTopic[];
   scenarios: CatalogScenario[];
   tools: ToolSpec[];
@@ -166,4 +188,41 @@ export type ReviewGrade = 'again' | 'hard' | 'good' | 'easy';
 
 export interface DrillSet {
   sentences: string[];
+}
+
+export interface QuickAnswer {
+  title: string;
+  rule: string;
+  examples: string[];
+  exceptions: string[];
+  watch_out: string;
+  spoken: string;
+}
+
+export interface Phrase {
+  text: string;
+  meaning: string;
+  tip: string;
+}
+
+export interface Lesson {
+  title: string;
+  intro: string;
+  phrases: Phrase[];
+  dialogue: { speaker: string; text: string; meaning: string }[];
+  quiz: Question[];
+  tip: string;
+}
+
+export interface UnitProgress {
+  id: string;
+  done: boolean;
+  score: number | null;
+}
+
+export interface CallSummary {
+  summary: string;
+  mistakes: { wrong: string; right: string; why: string }[];
+  phrases: string[];
+  next_step: string;
 }

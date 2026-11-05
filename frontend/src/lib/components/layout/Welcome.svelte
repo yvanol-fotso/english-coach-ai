@@ -1,12 +1,14 @@
 <script lang="ts">
   import { invalidateAll } from '$app/navigation';
   import ChoiceGroup from '$lib/components/ui/ChoiceGroup.svelte';
+  import LanguagePicker from '$lib/components/ui/LanguagePicker.svelte';
   import LevelCards from '$lib/components/ui/LevelCards.svelte';
   import { t } from '$lib/i18n/index.svelte';
   import { preferences } from '$lib/stores/preferences.svelte';
-  import type { Lang } from '$lib/types';
+  import type { CatalogLanguage } from '$lib/types';
   import { setCookie } from '$lib/utils/cookies';
 
+  let { languages }: { languages: CatalogLanguage[] } = $props();
   let name = $state('');
 
   async function start(event: SubmitEvent) {
@@ -28,6 +30,10 @@
       options={[{ value: 'fr', label: 'Français' }, { value: 'en', label: 'English' }]}
       onchange={(lang) => preferences.setLang(lang)}
     />
+    <div class="stack">
+      <span class="muted">{t('welcome.target')}</span>
+      <LanguagePicker {languages} />
+    </div>
     <label class="stack">
       <span class="muted">{t('welcome.name')}</span>
       <input class="field" bind:value={name} maxlength="40" required />

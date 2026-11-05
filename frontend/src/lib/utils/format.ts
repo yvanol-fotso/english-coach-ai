@@ -1,3 +1,4 @@
+import { t } from '$lib/i18n/index.svelte';
 import type { Text } from '$lib/types';
 import { preferences } from '$lib/stores/preferences.svelte';
 
@@ -10,3 +11,9 @@ export function formatDay(iso: string): string {
 }
 
 export const pick = (text: Text): string => text[preferences.lang] ?? text.en;
+
+export const langName = (code: string): string => {
+  const key = `lang.${code}`;
+  const text = t(key);
+  return text === key ? code.toUpperCase() : text;
+};

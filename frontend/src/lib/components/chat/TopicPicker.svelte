@@ -1,8 +1,11 @@
 <script lang="ts">
   import ErrorNotice from '$lib/components/ui/ErrorNotice.svelte';
   import { t } from '$lib/i18n/index.svelte';
+  import { preferences } from '$lib/stores/preferences.svelte';
   import type { Catalog } from '$lib/types';
   import { pick } from '$lib/utils/format';
+
+  const line = (starters: Record<string, string>) => starters[preferences.target] ?? starters.en;
 
   let {
     catalog,
@@ -25,7 +28,7 @@
       <h2>{t('talk.topics')}</h2>
       <div class="row">
         {#each catalog.topics as topic}
-          <button class="chip" onclick={() => onstart(topic.starter)}>{pick(topic.label)}</button>
+          <button class="chip" onclick={() => onstart(line(topic.starter))}>{pick(topic.label)}</button>
         {/each}
       </div>
     </div>
@@ -34,7 +37,7 @@
       <h2>{t('talk.situations')}</h2>
       <div class="row">
         {#each catalog.scenarios.filter((s) => s.chip) as situation}
-          <button class="chip" aria-pressed={scenario === situation.id} onclick={() => { onscenario(situation.id); onstart(situation.starter); }}>
+          <button class="chip" aria-pressed={scenario === situation.id} onclick={() => { onscenario(situation.id); onstart(line(situation.starter)); }}>
             {pick(situation.label)}
           </button>
         {/each}

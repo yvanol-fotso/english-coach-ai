@@ -2,10 +2,10 @@
   import { autoresize } from '$lib/actions/autoresize';
   import Icon from '$lib/components/ui/Icon.svelte';
   import { t } from '$lib/i18n/index.svelte';
-  import { canDictate, dictate, type DictationStatus, type SpeechLang } from '$lib/services/speech';
+  import { canDictate, dictate, type DictationStatus } from '$lib/services/speech';
   import { settings } from '$lib/stores/settings.svelte';
 
-  let { busy, lang, onlang, onsend, onstop }: { busy: boolean; lang: SpeechLang; onlang: () => void; onsend: (text: string) => void; onstop: () => void } = $props();
+  let { busy, lang, langLabel, onlang, onsend, onstop }: { busy: boolean; lang: string; langLabel: string; onlang: () => void; onsend: (text: string) => void; onstop: () => void } = $props();
 
   let text = $state('');
   let status = $state<DictationStatus>('idle');
@@ -49,7 +49,7 @@
     {/if}
   </div>
   {#if canDictate(settings.serverStt)}
-    <button class="link-btn lang" onclick={onlang}>{lang === 'en-US' ? t('mic.lang.en') : t('mic.lang.fr')}</button>
+    <button class="link-btn lang" onclick={onlang}>{langLabel}</button>
   {/if}
 </div>
 

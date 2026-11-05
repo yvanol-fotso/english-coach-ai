@@ -1,4 +1,7 @@
-export type SpeechLang = 'en-US' | 'fr-FR';
+import { localeOf } from '$lib/data/languages';
+import { preferences } from '$lib/stores/preferences.svelte';
+
+export type SpeechLang = string;
 export type DictationStatus = 'idle' | 'listening' | 'processing';
 
 interface SpeakOptions {
@@ -63,7 +66,7 @@ export function stopSpeaking(): void {
   cancelCurrent?.();
 }
 
-function play(text: string, { rate = 0.9, lang = 'en-US', server = false, voice = '' }: SpeakOptions): Promise<void> {
+function play(text: string, { rate = 0.9, lang = preferences.locale, server = false, voice = '' }: SpeakOptions): Promise<void> {
   return new Promise<void>((resolve) => {
     let finished = false;
     let audio: HTMLAudioElement | null = null;
@@ -121,14 +124,16 @@ export function speak(text: string, options: SpeakOptions = {}): Promise<void> {
   return play(text, options);
 }
 
-export async function speakSequence(parts: string[], options: SpeakOptions = {}): Promise<void> {
+export async function speakSequence(parts: (string | { text: string; lang?: SpeechLang })[], options: SpeakOptions = {}): Promise<void> {
   stopSpeaking();
   const id = session;
   for (const part of parts) {
     if (id !== session) return;
-    await play(part, options);
+    await play(typeof part === 'string' ? part : part.text, typeof part === 'string' ? options : { ...options, lang: part.lang ?? options.lang });
   }
 }
+
+export { localeOf };
 
 export const speakable = (text: string) => text.replace(/\([^)]*\)/g, ' ').replace(/[*_#]/g, '').replace(/\s+/g, ' ').trim();
 
@@ -216,7 +221,7 @@ function dictateWithServer({ lang, autoStop, onText, onFinal, onStatus }: Dictat
         try {
           const form = new FormData();
           form.append('file', new Blob(chunks, { type: rec.mimeType }), 'speech.webm');
-          form.append('language', lang === 'en-US' ? 'en' : 'fr');
+          form.append('language', lang.slice(0, 2));
           const res = await fetch('/api/speech/transcribe', { method: 'POST', body: form });
           const text = res.ok ? String((await res.json()).text ?? '').trim() : '';
           if (text) {

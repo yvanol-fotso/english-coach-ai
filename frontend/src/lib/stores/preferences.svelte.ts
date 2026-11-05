@@ -1,3 +1,4 @@
+import { localeOf } from '$lib/data/languages';
 import type { Accent, Lang, Prefs, Theme } from '$lib/types';
 import { setCookie } from '$lib/utils/cookies';
 
@@ -5,17 +6,27 @@ class Preferences {
   lang = $state<Lang>('fr');
   theme = $state<Theme>('system');
   accent = $state<Accent>('teal');
+  target = $state('en');
+
+  locale = $derived(localeOf(this.target));
+  nativeLocale = $derived(localeOf(this.lang));
 
   init(prefs: Prefs) {
     this.lang = prefs.lang;
     this.theme = prefs.theme;
     this.accent = prefs.accent;
+    this.target = prefs.target;
   }
 
   setLang(lang: Lang) {
     this.lang = lang;
     setCookie('ec_lang', lang);
     document.documentElement.lang = lang;
+  }
+
+  setTarget(code: string) {
+    this.target = code;
+    setCookie('ec_target', code);
   }
 
   setTheme(theme: Theme) {

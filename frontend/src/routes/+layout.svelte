@@ -6,6 +6,7 @@
   import Welcome from '$lib/components/layout/Welcome.svelte';
   import { preferences } from '$lib/stores/preferences.svelte';
   import { settings } from '$lib/stores/settings.svelte';
+  import { FALLBACK_LANGUAGES } from '$lib/data/languages';
   import { setCookie } from '$lib/utils/cookies';
   import type { LayoutData } from './$types';
 
@@ -34,11 +35,11 @@
 </script>
 
 <div class="shell">
-  <Sidebar health={data.health} profile={data.profile} />
+  <Sidebar health={data.health} profile={data.profile} languages={data.catalog?.languages ?? FALLBACK_LANGUAGES} />
   <main>{@render children()}</main>
 </div>
 
-{#if data.profile === null}<Welcome />{/if}
+{#if data.profile === null}<Welcome languages={data.catalog?.languages ?? FALLBACK_LANGUAGES} />{/if}
 
 <style>
   .shell { display: grid; grid-template-columns: 16rem 1fr; min-height: 100dvh; }

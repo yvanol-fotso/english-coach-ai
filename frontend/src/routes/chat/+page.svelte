@@ -1,6 +1,6 @@
 <script lang="ts">
   import { untrack } from 'svelte';
-  import { invalidate } from '$app/navigation';
+  import { goto, invalidate } from '$app/navigation';
   import { page } from '$app/state';
   import ChatComposer from '$lib/components/chat/ChatComposer.svelte';
   import ChatThread from '$lib/components/chat/ChatThread.svelte';
@@ -11,53 +11,51 @@
   import Icon from '$lib/components/ui/Icon.svelte';
   import LevelSelect from '$lib/components/ui/LevelSelect.svelte';
   import { t } from '$lib/i18n/index.svelte';
-  import { codeOf, getConversation, isAbort, streamChat } from '$lib/services/api';
-  import { canDictate, dictate, speakSequence, speakable, stopSpeaking, type SpeechLang } from '$lib/services/speech';
+  import { codeOf, getConversation } from '$lib/services/api';
+  import { ConversationSession } from '$lib/services/conversation.svelte';
+  import { canDictate } from '$lib/services/speech';
+  import { VoiceLoop } from '$lib/services/voiceLoop.svelte';
+  import { preferences } from '$lib/stores/preferences.svelte';
   import { settings } from '$lib/stores/settings.svelte';
-  import type { ChatMessage } from '$lib/types';
-  import { sameText } from '$lib/utils/diff';
-  import { pick } from '$lib/utils/format';
+  import { langName, pick } from '$lib/utils/format';
   import type { PageProps } from './$types';
 
   let { data }: PageProps = $props();
 
-  let scenario = $state('free');
-  let messages = $state<ChatMessage[]>([]);
-  let conversationId = $state<number | null>(null);
-  let busy = $state(false);
-  let errorCode = $state('');
+  const session = new ConversationSession(() => invalidate('app:history'));
   let notice = $state('');
-  let micLang = $state<SpeechLang>('en-US');
-  let live = $state(false);
-  let phase = $state<'listening' | 'thinking' | 'speaking'>('listening');
-  let heard = $state('');
-  let controller: AbortController | null = null;
-  let stopListening: (() => void) | null = null;
-  let emptyTurns = 0;
+  let micNative = $state(false);
   let openedId: number | null = null;
 
-  const situation = $derived(data.catalog?.scenarios.find((s) => s.id === scenario && s.chip));
-  const toggleLang = () => (micLang = micLang === 'en-US' ? 'fr-FR' : 'en-US');
+  const loop = new VoiceLoop({
+    lang: () => (micNative ? preferences.nativeLocale : preferences.locale),
+    server: () => settings.serverStt,
+    turn: (text) => session.send(text),
+    speak: () => session.speakLast(true),
+    onStall: () => (notice = t('live.nospeech'))
+  });
+
+  const situation = $derived(data.catalog?.scenarios.find((s) => s.id === session.scenario && s.chip));
+  const micLabel = $derived(t('mic.lang', { lang: langName(micNative ? preferences.lang : preferences.target) }));
+  const micLocale = $derived(micNative ? preferences.nativeLocale : preferences.locale);
 
   function reset() {
-    endLive();
-    controller?.abort();
-    messages = [];
-    conversationId = null;
-    scenario = 'free';
-    errorCode = '';
+    loop.end();
+    session.reset();
     notice = '';
   }
 
   async function open(id: number) {
     reset();
     try {
-      const conversation = await getConversation(id);
-      scenario = conversation.scenario;
-      conversationId = conversation.id;
-      messages = conversation.messages.map(({ role, content, correction }) => ({ role, content, correction }));
+      const detail = await getConversation(id);
+      if (detail.language !== preferences.target) {
+        preferences.setTarget(detail.language);
+        await invalidate('app:history');
+      }
+      session.load(detail);
     } catch (e) {
-      errorCode = codeOf(e);
+      session.errorCode = codeOf(e);
     }
   }
 
@@ -69,111 +67,21 @@
     untrack(() => (id ? open(id) : reset()));
   });
 
-  async function send(text: string): Promise<boolean> {
-    errorCode = '';
-    messages.push({ role: 'user', content: text });
-    const history = $state.snapshot(messages).map(({ role, content }) => ({ role, content }));
-    const userMessage = messages[messages.length - 1];
-    messages.push({ role: 'assistant', content: '' });
-    const reply = messages[messages.length - 1];
-
-    busy = true;
-    controller = new AbortController();
-    let ok = true;
-    try {
-      const request = { messages: history, conversation_id: conversationId, scenario, level: settings.level, feedback: settings.feedback };
-      for await (const event of streamChat(request, controller.signal)) {
-        if (event.type === 'conversation') conversationId = event.id;
-        else if (event.type === 'correction') userMessage.correction = event.data;
-        else reply.content += event.text;
-      }
-    } catch (e) {
-      ok = false;
-      if (!isAbort(e)) errorCode = codeOf(e);
-    } finally {
-      const produced = !!reply.content;
-      if (!produced) messages.pop();
-      busy = false;
-      controller = null;
-      invalidate('app:history');
-      ok = ok && produced;
-    }
-    return ok;
-  }
-
-  async function speakReply(withCorrection: boolean) {
-    const last = messages[messages.length - 1];
-    const previous = messages[messages.length - 2];
-    if (last?.role !== 'assistant') return;
-    const parts: string[] = [];
-    const fix = previous?.correction;
-    if (withCorrection && fix && (fix.issues.length || !sameText(fix.corrected_text, previous.content))) {
-      parts.push(`You can say: ${fix.corrected_text}`);
-    }
-    parts.push(speakable(last.content));
-    await speakSequence(parts.filter(Boolean), { rate: settings.speechRate, server: settings.serverTts, voice: settings.voiceName });
-  }
-
   async function submit(text: string) {
-    const ok = await send(text);
-    if (ok && settings.autoSpeak) await speakReply(false);
+    const ok = await session.send(text);
+    if (ok && settings.autoSpeak) await session.speakLast(false);
   }
 
-  function startLive() {
-    live = true;
-    emptyTurns = 0;
-    notice = '';
-    listenTurn();
-  }
-
-  function endLive() {
-    live = false;
-    stopListening?.();
-    stopListening = null;
-    stopSpeaking();
-    heard = '';
-  }
-
-  function listenTurn() {
-    if (!live) return;
-    phase = 'listening';
-    heard = '';
-    let got = false;
-    stopListening = dictate({
-      lang: micLang,
-      server: settings.serverStt,
-      autoStop: true,
-      onText: (text) => (heard = text),
-      onFinal: (text) => {
-        got = true;
-        emptyTurns = 0;
-        void liveTurn(text);
-      },
-      onStatus: (status) => {
-        if (status !== 'idle' || got || !live || phase !== 'listening') return;
-        if (++emptyTurns >= 3) {
-          endLive();
-          notice = t('live.nospeech');
-        } else setTimeout(listenTurn, 300);
-      }
-    });
-  }
-
-  async function liveTurn(text: string) {
-    phase = 'thinking';
-    const ok = await send(text);
-    if (!live) return;
-    if (!ok) return endLive();
-    phase = 'speaking';
-    await speakReply(true);
-    if (live) listenTurn();
-  }
+  const startNew = () => {
+    reset();
+    goto('/chat', { replaceState: true });
+  };
 </script>
 
 <svelte:head><title>{t('nav.talk')} · English Coach</title></svelte:head>
 
 <div class="layout">
-  <ConversationRail items={data.conversations ?? []} activeId={conversationId} onnew={() => { reset(); history.replaceState(history.state, '', '/chat'); }} />
+  <ConversationRail items={data.conversations ?? []} activeId={session.id} onnew={startNew} />
 
   <section class="chat">
     <header class="row bar">
@@ -182,34 +90,31 @@
         <input type="checkbox" checked={settings.feedback === 'inline'} onchange={(e) => (settings.feedback = e.currentTarget.checked ? 'inline' : 'off')} />
         {t('talk.feedback')}
       </label>
-      <label class="toggle">
-        <input type="checkbox" bind:checked={settings.autoSpeak} />
-        {t('talk.autospeak')}
-      </label>
+      <label class="toggle"><input type="checkbox" bind:checked={settings.autoSpeak} /> {t('talk.autospeak')}</label>
       {#if situation}
-        <button class="chip" aria-pressed="true" onclick={() => (scenario = 'free')}>{pick(situation.label)} ×</button>
+        <button class="chip" aria-pressed="true" onclick={() => (session.scenario = 'free')}>{pick(situation.label)} ×</button>
       {/if}
       <span class="spacer"></span>
       {#if canDictate(settings.serverStt)}
-        <button class="btn btn-primary" onclick={live ? endLive : startLive}>
-          <Icon name="mic" size={18} /> {live ? t('live.end') : t('live.start')}
+        <button class="btn btn-primary" onclick={() => (loop.active ? loop.end() : loop.start())}>
+          <Icon name="mic" size={18} /> {loop.active ? t('live.end') : t('live.start')}
         </button>
       {/if}
     </header>
 
-    {#if messages.length === 0}
-      <TopicPicker catalog={data.catalog} {scenario} onstart={submit} onscenario={(id) => (scenario = id)} />
+    {#if session.messages.length === 0}
+      <TopicPicker catalog={data.catalog} scenario={session.scenario} onstart={submit} onscenario={(id) => (session.scenario = id)} />
     {:else}
-      <ChatThread {messages} {busy} />
+      <ChatThread messages={session.messages} busy={session.busy} />
     {/if}
 
     {#if notice}<p class="notice notice-warn">{notice}</p>{/if}
-    {#if errorCode}<ErrorNotice code={errorCode} />{/if}
+    {#if session.errorCode}<ErrorNotice code={session.errorCode} />{/if}
 
-    {#if live}
-      <LivePanel {phase} {heard} lang={micLang} onlang={toggleLang} onskip={stopSpeaking} onend={endLive} />
+    {#if loop.active}
+      <LivePanel phase={loop.phase} heard={loop.heard} langLabel={micLabel} onlang={() => (micNative = !micNative)} onskip={() => loop.skip()} onend={() => loop.end()} />
     {:else}
-      <ChatComposer {busy} lang={micLang} onlang={toggleLang} onsend={submit} onstop={() => controller?.abort()} />
+      <ChatComposer busy={session.busy} lang={micLocale} langLabel={micLabel} onlang={() => (micNative = !micNative)} onsend={submit} onstop={() => session.abort()} />
     {/if}
   </section>
 </div>

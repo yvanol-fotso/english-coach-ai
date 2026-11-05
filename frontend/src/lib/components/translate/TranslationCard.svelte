@@ -1,13 +1,15 @@
 <script lang="ts">
   import { t } from '$lib/i18n/index.svelte';
-  import { canSpeak, speak, type SpeechLang } from '$lib/services/speech';
+  import { localeOf } from '$lib/data/languages';
+  import { canSpeak, speak } from '$lib/services/speech';
   import { settings } from '$lib/stores/settings.svelte';
   import type { TranslationResult } from '$lib/types';
+  import { langName } from '$lib/utils/format';
 
   let { result }: { result: TranslationResult } = $props();
   let copied = $state(false);
 
-  const lang = $derived<SpeechLang>(result.target_language === 'en' ? 'en-US' : 'fr-FR');
+  const lang = $derived(localeOf(result.target_language));
 
   async function copy() {
     await navigator.clipboard.writeText(result.translation);
@@ -17,7 +19,7 @@
 </script>
 
 <article class="card stack">
-  <p class="muted">{t('translate.direction', { from: t(`lang.${result.source_language}`), to: t(`lang.${result.target_language}`) })}</p>
+  <p class="muted">{t('translate.direction', { from: langName(result.source_language), to: langName(result.target_language) })}</p>
   <p class="main">{result.translation}</p>
   <div class="row">
     <button class="btn btn-sm" onclick={copy}>{copied ? t('common.copied') : t('common.copy')}</button>

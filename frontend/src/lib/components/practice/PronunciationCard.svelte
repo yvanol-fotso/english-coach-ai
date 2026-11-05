@@ -3,6 +3,7 @@
   import Icon from '$lib/components/ui/Icon.svelte';
   import { t } from '$lib/i18n/index.svelte';
   import { canDictate, dictate, speak, type DictationStatus } from '$lib/services/speech';
+  import { preferences } from '$lib/stores/preferences.svelte';
   import { settings } from '$lib/stores/settings.svelte';
   import { compare, type DiffWord } from '$lib/utils/diff';
 
@@ -19,7 +20,7 @@
     if (status === 'listening') return stopDictation?.();
     result = null;
     stopDictation = dictate({
-      lang: 'en-US',
+      lang: preferences.locale,
       server: settings.serverStt,
       autoStop: true,
       onText: (text) => (heard = text),

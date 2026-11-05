@@ -1,5 +1,7 @@
 import type { Feedback, Level } from '$lib/types';
 
+export type AnswerMode = 'text' | 'voice' | 'both';
+
 const KEY = 'english-coach:settings';
 
 class Settings {
@@ -7,6 +9,7 @@ class Settings {
   speechRate = $state(0.9);
   feedback = $state<Feedback>('inline');
   autoSpeak = $state(true);
+  answerMode = $state<AnswerMode>('both');
   voiceName = $state('');
   serverStt = $state(false);
   serverTts = $state(false);
@@ -19,6 +22,7 @@ class Settings {
       if (saved.speechRate) this.speechRate = saved.speechRate;
       if (saved.feedback) this.feedback = saved.feedback;
       if (typeof saved.autoSpeak === 'boolean') this.autoSpeak = saved.autoSpeak;
+      if (saved.answerMode) this.answerMode = saved.answerMode;
       if (typeof saved.voiceName === 'string') this.voiceName = saved.voiceName;
     } catch {
       /* corrupted storage is ignored */
@@ -32,6 +36,7 @@ class Settings {
       speechRate: this.speechRate,
       feedback: this.feedback,
       autoSpeak: this.autoSpeak,
+      answerMode: this.answerMode,
       voiceName: this.voiceName
     });
     if (this.#loaded) localStorage.setItem(KEY, snapshot);

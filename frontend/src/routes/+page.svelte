@@ -7,7 +7,9 @@
   let { data }: PageProps = $props();
 
   const cards = [
+    { href: '/path', icon: 'route', title: 'nav.path', text: 'home.path' },
     { href: '/chat', icon: 'chat', title: 'nav.talk', text: 'home.talk' },
+    { href: '/ask', icon: 'question', title: 'nav.ask', text: 'home.ask' },
     { href: '/drills', icon: 'wave', title: 'nav.drills', text: 'home.drills' },
     { href: '/correct', icon: 'pencil', title: 'nav.write', text: 'home.write' },
     { href: '/practice', icon: 'book', title: 'nav.understand', text: 'home.understand' },
@@ -33,7 +35,7 @@
 
   {#if setup}<ErrorNotice code={setup} model={data.health.model} />{/if}
 
-  <a class="cta" href="/chat"><Icon name="mic" size={22} /> {t('live.start')}</a>
+  <a class="cta" href="/call"><Icon name="phone" size={22} /> {t('call.dial')}</a>
 
   <div class="grid">
     {#each cards as card}

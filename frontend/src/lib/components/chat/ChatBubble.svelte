@@ -18,7 +18,7 @@
     busy = true;
     errorCode = '';
     try {
-      translation = await translate(message.content, 'en');
+      translation = await translate(message.content, 'target');
     } catch (e) {
       errorCode = codeOf(e);
     } finally {

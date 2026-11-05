@@ -2,7 +2,7 @@
   import Icon from '$lib/components/ui/Icon.svelte';
   import { t } from '$lib/i18n/index.svelte';
   import type { ConversationSummary } from '$lib/types';
-  import { formatDate } from '$lib/utils/format';
+  import { formatDate, langName } from '$lib/utils/format';
 
   let { items, labelOf, ondelete }: { items: ConversationSummary[]; labelOf: (scenario: string) => string; ondelete: (id: number) => void } = $props();
 </script>
@@ -13,7 +13,7 @@
       <a href="/chat?c={item.id}" class="main">
         <strong>{item.title}</strong>
         <span class="muted">
-          {formatDate(item.updated_at)} · {t('history.messages', { n: item.message_count })} · {item.level}
+          {formatDate(item.updated_at)} · {t('history.messages', { n: item.message_count })} · {item.level} · {langName(item.language)}
           {#if item.scenario !== 'free'} · {labelOf(item.scenario)}{/if}
         </span>
       </a>

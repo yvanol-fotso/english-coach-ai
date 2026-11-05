@@ -1,16 +1,15 @@
 <script lang="ts">
   import Icon from '$lib/components/ui/Icon.svelte';
   import { t } from '$lib/i18n/index.svelte';
-  import type { SpeechLang } from '$lib/services/speech';
 
   let {
     phase,
     heard,
-    lang,
+    langLabel,
     onlang,
     onskip,
     onend
-  }: { phase: 'listening' | 'thinking' | 'speaking'; heard: string; lang: SpeechLang; onlang: () => void; onskip: () => void; onend: () => void } = $props();
+  }: { phase: 'listening' | 'thinking' | 'speaking' | 'muted'; heard: string; langLabel: string; onlang: () => void; onskip: () => void; onend: () => void } = $props();
 </script>
 
 <div class="live card">
@@ -20,7 +19,7 @@
     <p class="muted heard">{phase === 'listening' && heard ? heard : t('live.hint')}</p>
   </div>
   <div class="row">
-    <button class="link-btn" onclick={onlang}>{lang === 'en-US' ? t('mic.lang.en') : t('mic.lang.fr')}</button>
+    <button class="link-btn" onclick={onlang}>{langLabel}</button>
     {#if phase === 'speaking'}<button class="btn btn-sm" onclick={onskip}>{t('live.skip')}</button>{/if}
     <button class="btn btn-sm" onclick={onend}>{t('live.end')}</button>
   </div>

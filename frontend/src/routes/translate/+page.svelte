@@ -2,11 +2,14 @@
   import ErrorNotice from '$lib/components/ui/ErrorNotice.svelte';
   import TranslationCard from '$lib/components/translate/TranslationCard.svelte';
   import { t } from '$lib/i18n/index.svelte';
+  import { preferences } from '$lib/stores/preferences.svelte';
+  import { langName } from '$lib/utils/format';
   import { codeOf, translate } from '$lib/services/api';
-  import type { Language, TranslationResult } from '$lib/types';
+  import type { TranslationResult } from '$lib/types';
 
   let text = $state('');
-  let source = $state<Language | 'auto'>('auto');
+  let source = $state<'auto' | 'native' | 'target'>('auto');
+  const nativeCode = $derived(preferences.lang !== preferences.target ? preferences.lang : preferences.target === 'fr' ? 'en' : 'fr');
   let result = $state<TranslationResult | null>(null);
   let loading = $state(false);
   let errorCode = $state('');
@@ -35,8 +38,8 @@
   <div class="row">
     <div class="seg" role="group" aria-label="Source">
       <button aria-pressed={source === 'auto'} onclick={() => (source = 'auto')}>{t('translate.auto')}</button>
-      <button aria-pressed={source === 'fr'} onclick={() => (source = 'fr')}>FR</button>
-      <button aria-pressed={source === 'en'} onclick={() => (source = 'en')}>EN</button>
+      <button aria-pressed={source === 'native'} onclick={() => (source = 'native')}>{langName(nativeCode)}</button>
+      <button aria-pressed={source === 'target'} onclick={() => (source = 'target')}>{langName(preferences.target)}</button>
     </div>
     <button class="btn btn-primary" onclick={run} disabled={loading || !text.trim()}>
       {loading ? t('translate.loading') : t('translate.submit')}

@@ -2,10 +2,12 @@
   import { onMount } from 'svelte';
   import { invalidateAll } from '$app/navigation';
   import ChoiceGroup from '$lib/components/ui/ChoiceGroup.svelte';
+  import LanguagePicker from '$lib/components/ui/LanguagePicker.svelte';
   import LevelCards from '$lib/components/ui/LevelCards.svelte';
   import { t } from '$lib/i18n/index.svelte';
   import { preferences } from '$lib/stores/preferences.svelte';
   import { settings } from '$lib/stores/settings.svelte';
+  import { FALLBACK_LANGUAGES } from '$lib/data/languages';
   import type { Accent, Lang, Theme } from '$lib/types';
   import { listVoices } from '$lib/services/speech';
   import { setCookie } from '$lib/utils/cookies';
@@ -49,6 +51,11 @@
       <button class="btn btn-primary" disabled={!name.trim() || name.trim() === data.profile}>{t('settings.profile.save')}</button>
     </div>
   </form>
+
+  <div class="card stack">
+    <h2>{t('settings.target')}</h2>
+    <LanguagePicker languages={data.catalog?.languages ?? FALLBACK_LANGUAGES} />
+  </div>
 
   <div class="card stack">
     <h2>{t('settings.language')}</h2>
