@@ -18,6 +18,10 @@ __pycache__/
 # Models and audio (large, downloaded locally)
 backend/models/piper/*
 !backend/models/piper/.gitkeep
+
+backend/models/piper/*.onnx
+backend/models/piper/*.onnx.json
+
 *.onnx
 *.onnx.json
 *.gguf
