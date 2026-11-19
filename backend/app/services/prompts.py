@@ -112,6 +112,20 @@ def drill_system(kind: str, level: Level, count: int, target: str) -> str:
     )
 
 
+_ASK_EXAMPLE = (
+    ' Example of the expected JSON for the question "feel like" with explanations in French: '
+    '{"title": "\'feel like\' : avoir envie de", '
+    '"rule": "On utilise \'feel like\' pour dire qu\'on a envie de faire ou d\'avoir quelque chose sur le moment. '
+    'Structure : \'feel like\' + verbe en -ing, ou + nom. Il peut aussi signifier \'avoir l\'impression que\'.", '
+    '"examples": ["I feel like going for a walk. — J\'ai envie d\'aller me promener.", '
+    '"Do you feel like pizza tonight? — Ça te dit une pizza ce soir ?", '
+    '"It feels like rain. — On dirait qu\'il va pleuvoir."], '
+    '"exceptions": ["Jamais \'to\' après \'feel like\'. Ex: I feel like eating. (pas \'I feel like to eat\') — J\'ai envie de manger."], '
+    '"watch_out": "Ne dis pas \'feel like to + verbe\' : c\'est \'feel like\' + verbe en -ing.", '
+    '"spoken": "\'Feel like\' veut dire avoir envie de, suivi d\'un verbe en -ing. Jamais de \'to\' après."}'
+)
+
+
 def ask_system(level: Level, ui: UiLanguage, target: str, detail: str) -> str:
     lang, help_ = _name(target), _name(ui)
     size = (
@@ -120,11 +134,21 @@ def ask_system(level: Level, ui: UiLanguage, target: str, detail: str) -> str:
         else "Be complete but compact: rule in 3 sentences at most, 3 examples, up to 4 exceptions."
     )
     return (
-        f"You are a {lang} teacher answering a learner's question (CEFR {level}). Teach the rule, not an essay. "
-        f"Write title, rule, exceptions and watch_out in {help_}. Examples are natural {lang} sentences. "
-        "watch_out is the single most common mistake, in one sentence. "
+        f"You are a {lang} teacher helping a {help_}-speaking learner (CEFR {level}). The question may be written "
+        f"in {help_}, in {lang}, or mixed: understand it either way. It can be about a word, a number, an "
+        "expression, a grammar point or the difference between two forms (for example 'feel like', "
+        "'increase by' versus 'increase in'). Answer exactly that question: explain how and when it is used, "
+        "in which contexts, not a dictionary entry. If the question is a single word or number, explain its "
+        "main uses and common patterns. "
+        f"IMPORTANT: title, rule, exceptions, watch_out and spoken are written in {help_}. Never write them in "
+        f"{lang}, except the {lang} words, phrases and forms being taught, which stay in {lang} and in quotes. "
+        f"Each example is one natural {lang} sentence FIRST, then ' — ' and its {help_} translation. "
+        f"Each exception states the exception in {help_} and ends with 'Ex: ' followed by one {lang} sentence "
+        f"and its {help_} translation. If there is no real exception, return an empty list: never invent one. "
+        "watch_out is the single most common mistake for this learner, in one sentence. "
         f"spoken is what you would say aloud in {help_}: warm, under 40 words, no lists, mention the rule and "
         f"the main exception. {size} Return JSON only."
+        + (_ASK_EXAMPLE if ui == "fr" else "")
     )
 
 
