@@ -1,7 +1,9 @@
 from app.catalog.types import T, Tool, option
 
 # To add a module to the Studio, add one Tool entry here. Placeholders in `instructions`:
-# {level_rule}, {help} (the learner's interface language) and one {id} per option.
+# {level_rule}, {lang} (the language being learned), {help} (the learner's interface language)
+# and one {id} per option. Describe the sections as '## Name': the page renders each one as a block,
+# and a section named Answers is hidden behind a button.
 TOOLS: tuple[Tool, ...] = (
     Tool(
         id="poem",
@@ -16,12 +18,13 @@ TOOLS: tuple[Tool, ...] = (
                    ("haiku", T("Haïku", "Haiku")), ("limerick", T("Limerick", "Limerick")), ("song lyrics", T("Chanson", "Song"))),
         ),
         instructions=(
-            "Write an original {style} poem in {lang} about the user's theme. {level_rule} "
-            "Then add a short 'Vocabulary' list of 4 to 6 useful words or expressions from the poem with a "
-            "translation or explanation in {help}. Finish with one line inviting the learner to write their own verse."
+            "Write an original {style} poem in {lang} about the user's theme, even if the theme is written in {help}. {level_rule} "
+            "Sections: '## Poem' (a bold title, then the poem, one verse per line, a blank line between stanzas); "
+            "'## Vocabulary' (4 to 6 bullets, each '**word or expression** — meaning in {help}'); "
+            "'## Your turn' (one sentence in {help} inviting the learner to write their own verse)."
         ),
         temperature=0.9,
-        max_words=220,
+        max_words=250,
     ),
     Tool(
         id="story",
@@ -36,12 +39,14 @@ TOOLS: tuple[Tool, ...] = (
                    ("mystery", T("Mystère", "Mystery")), ("funny", T("Humour", "Funny")), ("science fiction", T("Science-fiction", "Sci-fi"))),
         ),
         instructions=(
-            "Write a short {genre} story in {lang} about the user's idea. {level_rule} Use short paragraphs. "
-            "After the story add a 'Glossary' with 5 useful words and their meaning in {help}, then two questions "
-            "in {lang} to check understanding."
+            "Write a short {genre} story in {lang} about the user's idea, even if the idea is written in {help}. {level_rule} "
+            "Sections: '## Story' (a bold title, then 3 short paragraphs separated by blank lines, all in {lang}); "
+            "'## Glossary' (5 bullets, each '**word taken from the story** — meaning in {help}'); "
+            "'## Questions' (2 numbered comprehension questions in {lang}); "
+            "'## Answers' (the 2 answers in {lang}, numbered)."
         ),
         temperature=0.9,
-        max_words=300,
+        max_words=350,
     ),
     Tool(
         id="rewrite",
@@ -57,8 +62,9 @@ TOOLS: tuple[Tool, ...] = (
                    ("professional", T("Professionnel", "Professional"))),
         ),
         instructions=(
-            "Rewrite the user's {lang} text in a {tone} tone, keeping its meaning. Give the rewritten text first. "
-            "Then list the 3 most important changes with a one-sentence explanation each, written in {help}."
+            "Rewrite the user's {lang} text in a {tone} tone, keeping its meaning. "
+            "Sections: '## Rewritten text' (only the new text); "
+            "'## Main changes' (3 bullets, each saying what changed and why, in {help})."
         ),
         temperature=0.4,
         max_words=300,
@@ -71,12 +77,15 @@ TOOLS: tuple[Tool, ...] = (
         description=T("Une règle expliquée simplement, avec exemples et exercices.", "A rule explained simply, with examples and practice."),
         placeholder=T("Un point : present perfect, articles, conditionnel…", "A point: present perfect, articles, conditionals..."),
         instructions=(
-            "Explain the grammar point the user names. Write the explanation in {help}, short and clear, for a {help} "
-            "speaker learning {lang}. Give 4 example sentences in {lang}, the 2 most common mistakes {help} speakers make, and then "
-            "5 fill-in-the-blank practice sentences in {lang}. Put the answers at the very end under 'Answers'."
+            "Teach the {lang} grammar point the user names, to a {help} speaker. The point may be written in {help} or {lang}. "
+            "Sections: '## Explanation' (3 to 4 short sentences in {help}, with the {lang} forms in bold); "
+            "'## Examples' (4 bullets, each '{lang} sentence — {help} translation'); "
+            "'## Common mistakes' (2 bullets, each giving the wrong {lang} sentence, the correct one, and why in {help}); "
+            "'## Exercises' (5 numbered {lang} sentences, each with one blank ______ and the base word in brackets); "
+            "'## Answers' (the 5 completed sentences, numbered)."
         ),
         temperature=0.4,
-        max_words=350,
+        max_words=450,
     ),
     Tool(
         id="idioms",
@@ -91,10 +100,12 @@ TOOLS: tuple[Tool, ...] = (
                    ("everyday expressions", T("Expressions courantes", "Everyday"))),
         ),
         instructions=(
-            "Give 6 useful {kind} about the user's theme. {level_rule} For each: the expression in bold, its meaning "
-            "in {help}, and one natural example sentence in {lang}."
+            "Give 6 useful {kind} in {lang} about the user's theme. {level_rule} "
+            "Sections: '## Expressions' (6 bullets, each '**expression** — meaning in {help}. Example sentence in {lang}'); "
+            "'## Practice' (3 numbered {lang} sentences, each with one blank ______ to fill with one of the expressions); "
+            "'## Answers' (the 3 completed sentences, numbered)."
         ),
-        max_words=300,
+        max_words=400,
     ),
     Tool(
         id="email",
@@ -110,11 +121,12 @@ TOOLS: tuple[Tool, ...] = (
                    ("polite follow-up", T("Relance", "Follow-up")), ("message to a friend", T("Message à un ami", "Friend"))),
         ),
         instructions=(
-            "Write a {kind} in {lang} from the user's notes. The notes may be in French. {level_rule} Add a subject "
-            "line when it is an email. After the text, give 3 useful phrases from it with their meaning in {help}."
+            "Write a {kind} in {lang} from the user's notes, which may be in {help}. {level_rule} "
+            "Sections: '## Message' (a 'Subject:' line when it is an email, then the full text, ready to send); "
+            "'## Useful phrases' (3 bullets, each '**phrase from the message** — meaning in {help}')."
         ),
         temperature=0.5,
-        max_words=300,
+        max_words=350,
     ),
     Tool(
         id="simplify",
@@ -124,11 +136,14 @@ TOOLS: tuple[Tool, ...] = (
         description=T("Colle un texte difficile : version à ton niveau, mots clés et questions.", "Paste a hard text: a version at your level, key words and questions."),
         placeholder=T("Colle un article ou un paragraphe", "Paste an article or a paragraph"),
         instructions=(
-            "Rewrite the user's text at the learner's level, keeping the key ideas. {level_rule} Then add 'Key words' "
-            "(5 words with their meaning in {help}) and 3 comprehension questions in {lang}."
+            "Rewrite the user's text in {lang} at the learner's level, keeping the key ideas. {level_rule} "
+            "Sections: '## Simplified text'; "
+            "'## Key words' (5 bullets, each '**word** — meaning in {help}'); "
+            "'## Questions' (3 numbered comprehension questions in {lang}); "
+            "'## Answers' (3 short answers in {lang}, numbered)."
         ),
         temperature=0.3,
-        max_words=350,
+        max_words=400,
     ),
     Tool(
         id="interview_prep",
@@ -143,10 +158,11 @@ TOOLS: tuple[Tool, ...] = (
                    ("visa interview", T("Visa", "Visa"))),
         ),
         instructions=(
-            "Prepare the user for a {kind}. Give 6 likely questions. For each, write a short model answer in {lang} "
-            "based on the user's profile, then list 5 useful phrases to reuse with their meaning in {help}. {level_rule}"
+            "Prepare the user for a {kind}, using their profile. {level_rule} "
+            "Sections: '## Questions and model answers' (6 bullets, each '**likely question in {lang}** short model answer in {lang}'); "
+            "'## Useful phrases' (5 bullets, each '**phrase to reuse** — meaning in {help}')."
         ),
-        max_words=450,
+        max_words=500,
     ),
     Tool(
         id="pitch",
@@ -156,10 +172,12 @@ TOOLS: tuple[Tool, ...] = (
         description=T("Un discours de 60 secondes sur ton projet, à dire à voix haute.", "A 60-second talk about your project, to say out loud."),
         placeholder=T("Décris ton projet ou ta recherche en quelques phrases", "Describe your project or research"),
         instructions=(
-            "Write a spoken 60-second pitch in {lang} from the user's description. {level_rule} Use short sentences "
-            "that are easy to say out loud. Then give 3 questions the audience may ask, and 4 linking phrases to sound "
-            "natural, with their meaning in {help}."
+            "Write a spoken 60-second pitch in {lang} from the user's description, which may be in {help}. {level_rule} "
+            "Use short sentences that are easy to say out loud. "
+            "Sections: '## Pitch' (about 140 words); "
+            "'## Audience questions' (3 bullets in {lang}); "
+            "'## Linking phrases' (4 bullets, each '**phrase** — meaning in {help}')."
         ),
-        max_words=350,
+        max_words=400,
     ),
 )

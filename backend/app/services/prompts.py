@@ -61,8 +61,10 @@ def chat_correction_system(level: Level, ui: UiLanguage, target: str) -> str:
 def tool_system(spec: Tool, level: Level, ui: UiLanguage, target: str, chosen: dict[str, str]) -> str:
     body = spec.instructions.format_map({"level_rule": _LEVELS[level], "help": _name(ui), "lang": _name(target), **chosen})
     return (
-        f"{body} The learner is at CEFR level {level}. Use plain text: **bold** is allowed for key words and "
-        f"'- ' for lists, but no # headings and no emoji. Stay under {spec.max_words} words."
+        f"{body} The learner is at CEFR level {level}. Format: plain text only. Start every section with a '## ' "
+        f"heading written in {_name(ui)}; use '- ' for bullet lists, '1. ' for numbered lists and **bold** for key words. "
+        "No emoji, no tables, no other markdown, and never explain your reasoning or add text outside the sections. "
+        f"Stay under {spec.max_words} words."
     )
 
 
