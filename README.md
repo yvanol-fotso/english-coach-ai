@@ -6,6 +6,28 @@ A private language coach that runs on your own computer. No subscription, no pai
 
 Call your coach and talk: it speaks first, you answer, it corrects you and keeps going. It also teaches from zero with a step-by-step course. You can learn **English, French or Spanish**, from absolute beginner (A0) to near-native (C2). The interface is in French and English.
 
+## Understand in your own language first
+
+Many learners need to grasp an idea in their own language before meeting it in English. The app is built for that: it never behaves like a dictionary, it **explains**.
+
+Two settings control this, and they are independent:
+
+| Setting | Where | What it does |
+| --- | --- | --- |
+| **Interface language** | Settings | The language of the explanations. Choose **Français** to get every rule, context, limit and exception explained in French |
+| **I want to learn** | Sidebar | The language you are studying, for example **English** |
+
+With the interface in French and the target set to English, a question such as *"c'est quoi feel like ? quand on l'utilise ?"* or *"increase by ou increase in, quelle différence ?"* gives you:
+
+- the rule and the contexts of use, explained in French;
+- the English forms kept in quotes, so you see both languages together;
+- examples in English, each followed by its French translation;
+- the exceptions, each with an example, and the most common mistake to avoid.
+
+You can ask in French, in English, or mix both.
+
+> **If the explanation comes out in English**, with examples translated into English too, the interface language is set to English. Open Settings, switch the interface to Français, and ask again.
+
 ## What it does
 
 | | |
@@ -13,7 +35,7 @@ Call your coach and talk: it speaks first, you answer, it corrects you and keeps
 | **Course** | A beginner path in 10 units (greetings, introductions, numbers, food, directions...). Each lesson: discover the phrases, repeat them aloud, read a dialogue, take a quiz. Works for any language, starting from zero. |
 | **Talk** | Free conversation about anything. Every sentence you say is corrected first, then the coach answers, out loud if you want. Situations: meeting someone, everyday life, PhD or job interview, debate, presenting your work, science talk. |
 | **Call** | A phone-style voice call. The coach speaks first, you reply, it corrects and continues. At the end: a review with your main mistakes, useful phrases and a next step. |
-| **Ask** | Ask a language question by voice or text ("when do I use however and despite?"). The answer is short: the rule, the exceptions, examples. Read it, hear it, or both. |
+| **Ask** | Ask a language question by voice or text, in French or English ("when do I use however and despite?", "c'est quoi feel like ?"). The answer is short: the rule and its contexts, translated examples, the exceptions with an example. Read it, hear it, or both. |
 | **Voice drills** | Pronunciation (word-by-word score) and dictation. |
 | **Write** | Corrected text with each mistake explained. |
 | **Understand** | Reading or listening exercises with a quiz. |
@@ -131,7 +153,7 @@ Everything is described in small catalogs in `backend/app/catalog/`. Add one ent
 | A course unit | `units.py` | One `Unit(...)`: title, goal, what it teaches. It works in every language |
 | A language | `languages.py` | One `Language(...)` with `available=True`. Add its first lines in `scenarios.py` and `topics.py` (English is used when missing) |
 
-Languages marked `available=False` (German, Portuguese, Italian, Chinese, Arabic) show as "soon". Quality depends on the model: English is the strongest, French and Spanish are good, and a larger model such as `qwen3:8b` (set `OLLAMA_MODEL`) improves them.
+Languages marked `available=False` (German, Portuguese, Italian, Chinese, Arabic) show as "soon". Quality depends on the model: English is the strongest, French and Spanish are good, and a larger model such as `qwen3:8b` (set `OLLAMA_MODEL`) improves them, notably the accuracy of the explanations in **Ask**.
 
 ## Publishing
 
